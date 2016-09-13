@@ -19,6 +19,14 @@ function notifyAll(observers, state) {
     observers.forEach(o => o.next(state));
 }
 
+function fromCallbacks(next, error, complete) {
+    return {
+        next,
+        error,
+        complete
+    };
+}
+
 function data(initial) {
     let state = initial;
     let subscriptions = [];
@@ -63,6 +71,10 @@ function data(initial) {
         },
 
         subscribe(observer) {
+            if (typeof observer === 'function') {
+                observer = fromCallbacks(...arguments);
+            }
+
             observers.push(observer);
             observer.next(state);
             return {
