@@ -2,32 +2,21 @@
  * Created by ndyumin on 13.09.2016.
  */
 const stk = require('../src/');
-const most = require('most');
 
-const state = stk.data(1);
 const sum = (x, y) => x + y;
 
-state.reduce(most.from([2,3,4]), sum);
-state.subscribe({
-    next(v) {
-        console.log(v);
-    },
-    error(e) {
-        console.log('error', e);
-    },
-    complete() {
-        console.log('finished');
-    }
-});
+const state = stk.data({amount:0});
+const actions = stk.actions(1);
 
-state.subscribe(
-    function next(v) {
-        console.log(v);
-    },
-    function error(e) {
-        console.log('error', e);
-    },
-    function complete() {
-        console.log('finished');
-    }
-);
+state.subscribe(v => console.log(v));
+state.reduce(actions, (s, u) => Object.assign({}, s, {amount: u}));
+
+const addEvent = stk.actions.createEvent(sum);
+const add = actions.createEvent(sum);
+actions.dispatch(addEvent(2));
+actions.dispatch(addEvent(3));
+actions.dispatch(addEvent(4));
+
+add(20);
+add(30);
+add(40);

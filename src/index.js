@@ -86,10 +86,50 @@ function data(initial) {
     };
 }
 
-function actions() {
+function actions(initial) {
+    const events = [];
+    let subscribers = [];
 
+    function project() {
+        return events.reduce(function(state, event) {
+            return event.reduce(state, event.update);
+        }, initial);
+    }
+
+    return {
+        subscribe(observer) {
+            if (typeof observer === 'function') {
+                observer = fromCallbacks(...arguments);
+            }
+            subscribers.push(observer);
+            return {
+                unsubscribe() {
+                    subscribers = removeItem(subscribers, observer);
+                }
+            };
+        },
+        dispatch(event) {
+            events.push(event);
+            notifyAll(subscribers, project())
+        },
+        createEvent(reduce) {
+            return update =>
+                this.dispatch({
+                    reduce,
+                    update
+                });
+        }
+    };
 }
 
+actions.createEvent = function(reduce) {
+    return function(update) {
+        return {
+            reduce,
+            update
+        };
+    }
+};
 
 module.exports = {
     data,
