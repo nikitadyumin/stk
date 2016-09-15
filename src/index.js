@@ -108,7 +108,7 @@ function actions(initial) {
     }
 
     return {
-        _project: project``,
+        _project: project,
         subscribe(observer) {
             if (typeof observer === 'function') {
                 observer = fromCallbacks(...arguments);
