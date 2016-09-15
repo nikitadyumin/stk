@@ -89,14 +89,26 @@ function data(initial) {
 function actions(initial) {
     const events = [];
     let subscribers = [];
+    let snapshots = [];
 
-    function project() {
-        return events.reduce(function(state, event) {
+    function projectFrom(initial, sequence) {
+        return sequence.reduce(function(state, event) {
             return event.reduce(state, event.update);
         }, initial);
     }
 
+    function project() {
+        const latestSnapshot = snapshots[snapshots.length - 1];
+        if (events.length === snapshots.length) {
+            return latestSnapshot;
+        } else {
+            const sequence = events.slice(snapshots.length);
+            return snapshots[events.length - 1] = projectFrom(latestSnapshot || initial, sequence);
+        }
+    }
+
     return {
+        _project: project``,
         subscribe(observer) {
             if (typeof observer === 'function') {
                 observer = fromCallbacks(...arguments);
