@@ -10,6 +10,7 @@ function actions(initial) {
     const events = [];
     let subscribers = [];
     let snapshots = [];
+    let replicas =[];
 
     function projectFrom(initial, sequence) {
         return sequence.reduce(function(state, event) {
@@ -32,6 +33,19 @@ function actions(initial) {
             return this;
         },
         _project: project,
+        _eventLog: function(observer) {
+            if (typeof observer === 'function') {
+                observer = fromCallbacks(...arguments);
+            }
+            events.forEach(observer.next);
+            replicas.push(observer);
+
+            return {
+                unsubscribe() {
+                    subscribers = removeItem(replicas, observer);
+                }
+            };
+        },
         subscribe(observer) {
             if (typeof observer === 'function') {
                 observer = fromCallbacks(...arguments);
@@ -45,7 +59,8 @@ function actions(initial) {
         },
         dispatch(event) {
             events.push(event);
-            notifyAll(subscribers, project())
+            notifyAll(subscribers, project());
+            notifyAll(replicas, event);
         },
         createEvent(reduce) {
             return update =>
