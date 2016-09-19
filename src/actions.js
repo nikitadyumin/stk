@@ -8,7 +8,6 @@ const symbolObservable = require('symbol-observable');
 
 function actions(initial) {
     const events = [];
-    let subscribers = [];
     let snapshots = [];
     let replicas =[];
 
@@ -42,7 +41,7 @@ function actions(initial) {
 
             return {
                 unsubscribe() {
-                    subscribers = removeItem(replicas, observer);
+                    replicas = removeItem(replicas, observer);
                 }
             };
         },
@@ -50,16 +49,12 @@ function actions(initial) {
             if (typeof observer === 'function') {
                 observer = fromCallbacks(...arguments);
             }
-            subscribers.push(observer);
-            return {
-                unsubscribe() {
-                    subscribers = removeItem(subscribers, observer);
-                }
-            };
+            return this._eventLog(function (_value) {
+                observer.next(project());
+            });
         },
         dispatch(event) {
             events.push(event);
-            notifyAll(subscribers, project());
             notifyAll(replicas, event);
         },
         createEvent(reduce) {
