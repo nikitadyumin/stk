@@ -8,24 +8,24 @@ const symbolObservable = require('symbol-observable');
 
 function actions(initial) {
     const events = [];
-    let snapshots = [];
+    // let snapshots = [];
     let replicas =[];
 
-    function projectFrom(initial, sequence) {
-        return sequence.reduce(function(state, event) {
+    function project(events, initial) {
+        return events.reduce(function(state, event) {
             return event.reduce(state, event.update);
         }, initial);
     }
 
-    function project() {
-        const latestSnapshot = snapshots[snapshots.length - 1];
-        if (events.length === snapshots.length) {
-            return latestSnapshot;
-        } else {
-            const sequence = events.slice(snapshots.length);
-            return snapshots[events.length - 1] = projectFrom(latestSnapshot || initial, sequence);
-        }
-    }
+    // function project() {
+    //     const latestSnapshot = snapshots[snapshots.length - 1];
+    //     if (events.length === snapshots.length) {
+    //         return latestSnapshot;
+    //     } else {
+    //         const sequence = events.slice(snapshots.length);
+    //         return snapshots[events.length - 1] = projectFrom(latestSnapshot || initial, sequence);
+    //     }
+    // }
 
     return {
         [symbolObservable]: function() {
@@ -50,8 +50,31 @@ function actions(initial) {
                 observer = fromCallbacks(...arguments);
             }
             return this._eventLog(function (_value) {
-                observer.next(project());
+                observer.next(project(events, initial));
             });
+        },
+        view(projectFn) {
+            let _viewObservers = [];
+            const eventLog = this._eventLog;
+
+            return {
+                subscribe: function(observer) {
+                    if (typeof observer === 'function') {
+                        observer = fromCallbacks(...arguments);
+                    }
+                    _viewObservers.push(observer);
+                    const subs = eventLog(function () {
+                        observer.next(projectFn(events, initial));
+                    });
+
+                    return {
+                        unsubscribe() {
+                            subs.unsubscribe();
+                            _viewObservers = removeItem(_viewObservers, observer);
+                        }
+                    };
+                }
+            }
         },
         dispatch(event) {
             events.push(event);
