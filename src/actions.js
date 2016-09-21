@@ -32,7 +32,7 @@ function actions(initial) {
             return this;
         },
         _project: project,
-        _eventLog: function(observer) {
+        _eventLog (observer) {
             if (typeof observer === 'function') {
                 observer = fromCallbacks(...arguments);
             }
@@ -49,16 +49,15 @@ function actions(initial) {
             if (typeof observer === 'function') {
                 observer = fromCallbacks(...arguments);
             }
-            return this._eventLog(function (_value) {
-                observer.next(project(events, initial));
-            });
+
+            return this.view(project).subscribe(observer);
         },
         view(projectFn) {
             let _viewObservers = [];
             const eventLog = this._eventLog;
 
             return {
-                subscribe: function(observer) {
+                subscribe (observer) {
                     if (typeof observer === 'function') {
                         observer = fromCallbacks(...arguments);
                     }
