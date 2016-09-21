@@ -9,7 +9,7 @@ const sum = (x, y) => x + y;
 const addEvent = state.createEvent(sum);
 
 const log = i => v => console.log(i, v);
-const defaultView = state.view(state._project);
+const defaultView = state.view(stk.actions.defaultProjection);
 const multiplyView = state.view(function(events, initial) {
     return events.reduce((result, event) => result * event.update, 1);
 });

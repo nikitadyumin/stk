@@ -76,6 +76,7 @@ function actions(initial) {
         }
     };
 }
+actions.defaultProjection = project;
 
 actions.createEvent = function (reduce) {
     return function (update) {
