@@ -6,32 +6,20 @@ const {removeItem} = require('./arrays');
 const {fromCallbacks, notifyAll} = require('./observers');
 const symbolObservable = require('symbol-observable');
 
+function project(events, initial) {
+    return events.reduce(function (state, event) {
+        return event.reduce(state, event.update);
+    }, initial);
+}
+
 function actions(initial) {
+    let replicas = [];
     const events = [];
-    // let snapshots = [];
-    let replicas =[];
-
-    function project(events, initial) {
-        return events.reduce(function(state, event) {
-            return event.reduce(state, event.update);
-        }, initial);
-    }
-
-    // function project() {
-    //     const latestSnapshot = snapshots[snapshots.length - 1];
-    //     if (events.length === snapshots.length) {
-    //         return latestSnapshot;
-    //     } else {
-    //         const sequence = events.slice(snapshots.length);
-    //         return snapshots[events.length - 1] = projectFrom(latestSnapshot || initial, sequence);
-    //     }
-    // }
 
     return {
-        [symbolObservable]: function() {
+        [symbolObservable]: function () {
             return this;
         },
-        _project: project,
         _eventLog (observer) {
             if (typeof observer === 'function') {
                 observer = fromCallbacks(...arguments);
@@ -89,8 +77,8 @@ function actions(initial) {
     };
 }
 
-actions.createEvent = function(reduce) {
-    return function(update) {
+actions.createEvent = function (reduce) {
+    return function (update) {
         return {
             reduce,
             update
