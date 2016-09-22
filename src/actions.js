@@ -13,8 +13,8 @@ function project(events, initial) {
 }
 
 function actions(initial) {
-    let replicas = [];
     const events = [];
+    let replicas = [];
 
     return {
         [symbolObservable]: function () {
@@ -39,6 +39,12 @@ function actions(initial) {
             }
 
             return this.view(project).subscribe(observer);
+        },
+        plug(observable, reducer) {
+            const event = this.createEvent(reducer);
+            return observable.subscribe({
+                next: event
+            });
         },
         view(projectFn) {
             let _viewObservers = [];
