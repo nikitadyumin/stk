@@ -24,16 +24,19 @@ const dataChanged = state.createEvent(setData);
 
 const requestData = state.createCommand(name =>
     asyncDataRequest(name)
-        .then(dataChanged)
-        .catch(log('error')));
+        .then(dataChanged));
 
 const requestName = state.createCommand(id =>
     asyncNameRequest(id)
         .then(name => {
             nameChanged(name);
-            requestData(name);
+            return requestData(name);
         })
-        .catch(log('error')));
+        .catch(function(e){
+            nameChanged('');
+            dataChanged('');
+            log('error: ')(e);
+        }));
 
 requestName(40);
 requestName(400);
