@@ -74,7 +74,7 @@ function actions(initial) {
             notifyAll(replicas, event);
         },
         createCommand(executor) {
-            return update => executor(update);
+            return executor;
         },
         createEvent(reduce) {
             return update =>
@@ -96,7 +96,7 @@ actions.createEvent = function (reduce) {
     }
 };
 actions.createCommand = function(executor) {
-    return update => executor(update);
+    return executor;
 };
 
 module.exports = actions;
