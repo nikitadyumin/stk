@@ -13,7 +13,7 @@ function project(events, initial) {
 }
 
 function actions(initial) {
-    const events = [];
+    let events = [];
     let replicas = [];
 
     return {
@@ -68,6 +68,29 @@ function actions(initial) {
                     };
                 }
             }
+        },
+        transaction() {
+            const _branchRev = events.length;
+            const _altEvents = [];
+            const branch = actions(initial);
+            const subs = this._eventLog(branch.dispatch);
+            const bSubs = branch._eventLog(ev => _altEvents.push(ev));
+            return {
+                store: () => branch,
+                dispatch: branch.dispatch,
+                commit: () => {
+                    subs.unsubscribe();
+                    bSubs.unsubscribe();
+                    events = events.slice(0, _branchRev).concat(_altEvents);
+                    _altEvents.length = 0;
+                    notifyAll(replicas, actions.createEvent(s=>s)())
+                },
+                cancel: () => {
+                    subs.unsubscribe();
+                    bSubs.unsubscribe();
+                    _altEvents.length = 0;
+                }
+            };
         },
         dispatch(event) {
             events.push(event);
