@@ -2,10 +2,16 @@
  * Created by ndyumin on 09.09.2016.
  */
 
-const data = require('./data');
-const actions = require('./actions');
+const {
+    store,
+    eventCreatorFactory,
+    commandCreatorFactory,
+    defaultProjection
+} = require('./store');
 
 module.exports = {
-    data,
-    actions
+    store,
+    eventCreatorFactory,
+    commandCreatorFactory,
+    defaultProjection
 };

@@ -7,7 +7,7 @@ const log = l => v => console.log(l, v);
 const setName = (s, u) => Object.assign({}, s, {name: u});
 const setData = (s, u) => Object.assign({}, s, {data: u});
 
-const state = stk.actions({});
+const state = stk.store({});
 
 state.subscribe(log('state'));
 
@@ -19,14 +19,14 @@ const asyncDataRequest = name => name === 'Name'
     ? Promise.resolve(Math.random())
     : Promise.reject('reason for data');
 
-const nameChanged = state.createEvent(setName);
-const dataChanged = state.createEvent(setData);
+const nameChanged = state.eventCreatorFactory(setName);
+const dataChanged = state.eventCreatorFactory(setData);
 
-const requestData = state.createCommand(name =>
+const requestData = state.commandCreatorFactory(name =>
     asyncDataRequest(name)
         .then(dataChanged));
 
-const requestName = state.createCommand(id =>
+const requestName = state.commandCreatorFactory(id =>
     asyncNameRequest(id)
         .then(name => {
             nameChanged(name);

@@ -12,7 +12,14 @@ function project(events, initial) {
     }, initial);
 }
 
-function actions(initial) {
+const eventCreatorFactory = reduce => update => ({
+    reduce,
+    update
+});
+
+const commandCreatorFactory = executor => executor;
+
+function store(initial) {
     let events = [];
     let replicas = [];
 
@@ -41,7 +48,7 @@ function actions(initial) {
             return this.view(project).subscribe(observer);
         },
         plug(observable, reducer) {
-            const event = this.createEvent(reducer);
+            const event = this.eventCreatorFactory(reducer);
             return observable.subscribe({
                 next: event
             });
@@ -72,7 +79,7 @@ function actions(initial) {
         transaction() {
             const _branchRev = events.length;
             const _altEvents = [];
-            const branch = actions(initial);
+            const branch = store(initial);
             const subs = this._eventLog(branch.dispatch);
             const bSubs = branch._eventLog(ev => _altEvents.push(ev));
             return {
@@ -83,7 +90,7 @@ function actions(initial) {
                     bSubs.unsubscribe();
                     events = events.slice(0, _branchRev).concat(_altEvents);
                     _altEvents.length = 0;
-                    notifyAll(replicas, actions.createEvent(s=>s)())
+                    notifyAll(replicas, eventCreatorFactory(s=>s)())
                 },
                 cancel: () => {
                     subs.unsubscribe();
@@ -96,10 +103,8 @@ function actions(initial) {
             events.push(event);
             notifyAll(replicas, event);
         },
-        createCommand(executor) {
-            return executor;
-        },
-        createEvent(reduce) {
+        commandCreatorFactory,
+        eventCreatorFactory(reduce) {
             return update =>
                 this.dispatch({
                     reduce,
@@ -108,18 +113,10 @@ function actions(initial) {
         }
     };
 }
-actions.defaultProjection = project;
 
-actions.createEvent = function (reduce) {
-    return function (update) {
-        return {
-            reduce,
-            update
-        };
-    }
+module.exports = {
+    store,
+    eventCreatorFactory,
+    commandCreatorFactory,
+    defaultProjection: project
 };
-actions.createCommand = function(executor) {
-    return executor;
-};
-
-module.exports = actions;

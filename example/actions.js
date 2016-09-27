@@ -3,18 +3,21 @@
  */
 const stk = require('../src/');
 
-const actions = stk.actions(0);
+
 const sum = (x, y) => x + y;
 
-const addEvent = stk.actions.createEvent(sum);
+const store = stk.store(0);
+const numberEvent = stk.eventCreatorFactory((x, y) => x + y);
+store.subscribe(v=> console.log(v));
+store.dispatch(numberEvent(1));
+store.dispatch(numberEvent(2));
+store.dispatch(numberEvent(3));
+store.dispatch(numberEvent(4));
 
-actions.subscribe({
-    next(v) {
-        console.log(v);
-    }
-});
-
-actions.dispatch(addEvent(1));
-actions.dispatch(addEvent(2));
-actions.dispatch(addEvent(3));
-actions.dispatch(addEvent(4));
+const _store = stk.store(0);
+const dispatchNumberEvent = _store.eventCreatorFactory((x, y) => x + y);
+_store.subscribe(v=> console.log(v));
+dispatchNumberEvent(1);
+dispatchNumberEvent(2);
+dispatchNumberEvent(3);
+dispatchNumberEvent(4);

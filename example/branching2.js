@@ -7,7 +7,7 @@ const log = l => v => console.log(l, v);
 const add = (x,y) => x+ y;
 const mult = (x,y) => x* y;
 
-const state = stk.actions(0);
+const state = stk.store(0);
 
 state.subscribe(log('state'));
 const t = state.transaction();
@@ -16,9 +16,9 @@ const t2 = state.transaction();
 t.store().subscribe(log('transaction'));
 t2.store().subscribe(log('transaction2'));
 
-const stateEvent = state.createEvent(add);
-const transactionEvent = t.store().createEvent(mult);
-const transaction2Event = t2.store().createEvent(mult);
+const stateEvent = state.eventCreatorFactory(add);
+const transactionEvent = t.store().eventCreatorFactory(mult);
+const transaction2Event = t2.store().eventCreatorFactory(mult);
 
 stateEvent(2);
 transactionEvent(3) ;

@@ -3,13 +3,13 @@
  */
 const stk = require('../src/');
 
-const state = stk.actions(0);
+const state = stk.store(0);
 const sum = (x, y) => x + y;
 
-const addEvent = state.createEvent(sum);
+const addEvent = state.eventCreatorFactory(sum);
 
 const log = i => v => console.log(i, v);
-const defaultView = state.view(stk.actions.defaultProjection);
+const defaultView = state.view(stk.defaultProjection);
 const multiplyView = state.view(function(events, initial) {
     return events.reduce((result, event) => result * event.update, 1);
 });
