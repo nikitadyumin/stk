@@ -55,7 +55,7 @@ function store(initial) {
         },
         view(projectFn) {
             let _viewObservers = [];
-            const eventLog = this._eventLog;
+            const onEvent = this._eventLog;
 
             return {
                 subscribe (observer) {
@@ -63,13 +63,16 @@ function store(initial) {
                         observer = fromCallbacks(...arguments);
                     }
                     _viewObservers.push(observer);
-                    const subs = eventLog(function () {
+                    const projectAndNotify = () =>
                         observer.next(projectFn(events, initial));
-                    });
+
+                    projectAndNotify();
+
+                    const subscription = onEvent(projectAndNotify);
 
                     return {
                         unsubscribe() {
-                            subs.unsubscribe();
+                            subscription.unsubscribe();
                             _viewObservers = removeItem(_viewObservers, observer);
                         }
                     };
