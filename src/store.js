@@ -31,7 +31,6 @@ function store(initial) {
             if (typeof observer === 'function') {
                 observer = fromCallbacks(...arguments);
             }
-            events.forEach(observer.next);
             replicas.push(observer);
 
             return {
