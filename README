@@ -1,0 +1,30 @@
+# State management toolkit
+
+
+## Basics
+`.subscribe(Observer)`
+`.subscribe(onNext, onError, onComplete)`
+subscribe for state updates
+
+`.dispatch(Event)`
+dispatches an event (produced with an eventCreator)
+
+`.eventCreatorFactory(fnReducer)`
+given a reducer returns an event creator that produces events (events can't have side effects)
+
+`.commandCreatorFactory(fnExecutor)`
+given an executor function returns a command creator that produces commands (that perform side effects)
+
+`.plug(Observable, reducer)`
+'plugs' an observable to the store, so that every value from the observable results into an event (with the given reducer)
+
+
+## Advanced
+`.view(project)`
+given a project function (project(Events[], initialState)) produces a view that is a way to observe events flowing in the store
+
+`.transaction()`
+starts a transaction that later can be either committed to the state or cancelled
+
+`._eventLog(Observer)`
+subscribes an Observer to the raw event log flowing through the store
