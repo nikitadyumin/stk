@@ -8,10 +8,14 @@ const {
     commandCreatorFactory,
     defaultProjection
 } = require('./store');
+const addStore = require('./devtools');
 
 module.exports = {
     store,
     eventCreatorFactory,
     commandCreatorFactory,
-    defaultProjection
+    defaultProjection,
+    devtools: {
+        addStore
+    }
 };

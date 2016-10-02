@@ -8,7 +8,7 @@
 subscribe for state updates
 
 example
-```
+```javascript
 stk.store(10).subscribe(state => console.log(state));
 stk.store(20).subscribe({
     next(state) {
@@ -19,7 +19,7 @@ stk.store(20).subscribe({
 
 `.dispatch(Event)`
 dispatches an event (produced with an eventCreator)
-```
+```javascript
 const sum = (x, y) => x + y;
 const store = stk.store(10);
 store.dispatch({
@@ -31,7 +31,7 @@ store.subscribe(state => console.log(state)); // 10, 30
 
 `.eventCreatorFactory(fnReducer)`
 given a reducer returns an event creator that produces events (events can't have side effects)
-```
+```javascript
 const sum = (x, y) => x + y;
 const store = stk.store(10);
 const numberEvent = store.eventCreatorFactory(sum);
@@ -55,3 +55,13 @@ starts a transaction that later can be either committed to the state or cancelle
 
 `._eventLog(Observer)`
 subscribes an Observer to the raw event log flowing through the store
+
+## Redux DevTools Extension
+STK works with Redux Devtools Extension:
+- Install the [tools](https://github.com/zalmoxisus/redux-devtools-extension)
+- Connect one of the stores to the DevTools:
+```javascript
+const initial = 0;
+const store = stk.store(initial);
+stk.devtools.addStore(store, initial);
+```
