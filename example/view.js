@@ -11,8 +11,8 @@ const addEvent = state.eventCreatorFactory(sum);
 const log = i => v => console.log(i, v);
 const defaultView = state.view(stk.defaultProjection);
 const multiplyView = state.view(function(events, initial) {
-    return events.reduce((result, event) => result * event.update, 1);
-});
+    return events.reduce((result, event) => result * event.update, initial);
+}, 1);
 defaultView.subscribe(log(1));
 multiplyView.subscribe(log(2));
 addEvent(1);

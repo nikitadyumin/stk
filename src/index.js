@@ -9,6 +9,7 @@ const {
     defaultProjection
 } = require('./store');
 const addStore = require('./devtools');
+const flushStrategies = require('./flushStrategies');
 
 module.exports = {
     store,
@@ -17,5 +18,6 @@ module.exports = {
     defaultProjection,
     devtools: {
         addStore
-    }
+    },
+    flushStrategies
 };

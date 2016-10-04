@@ -4,9 +4,10 @@
 
 const {removeItem} = require('./arrays');
 const {fromCallbacks, notifyAll} = require('./observers');
+const {count100kFlushStrategy} = require('./flushStrategies');
 const symbolObservable = require('symbol-observable');
 
-function project(events, initial) {
+function defaultProjection(events, initial) {
     return events.reduce(function (state, event) {
         return event.reduce(state, event.update);
     }, initial);
@@ -19,10 +20,11 @@ const eventCreatorFactory = reduce => update => ({
 
 const commandCreatorFactory = executor => executor;
 
-function store(initial) {
+function store(initial, flushStrategy = count100kFlushStrategy) {
     let events = [];
     let replicas = [];
 
+    const flush = flushStrategy(defaultProjection);
     return {
         [symbolObservable]: function () {
             return this;
@@ -44,7 +46,7 @@ function store(initial) {
                 observer = fromCallbacks(...arguments);
             }
 
-            return this.view(project).subscribe(observer);
+            return this.view(defaultProjection).subscribe(observer);
         },
         plug(observable, reducer) {
             const event = this.eventCreatorFactory(reducer);
@@ -52,27 +54,30 @@ function store(initial) {
                 next: event
             });
         },
-        view(projectFn) {
-            let _viewObservers = [];
+        view(projectFn, viewInitial = initial) {
+            let viewObservers = [];
             const onEvent = this._eventLog;
-
+            const flush = flushStrategy(projectFn);
             return {
                 subscribe (observer) {
                     if (typeof observer === 'function') {
                         observer = fromCallbacks(...arguments);
                     }
-                    _viewObservers.push(observer);
+                    viewObservers.push(observer);
                     const projectAndNotify = () =>
-                        observer.next(projectFn(events, initial));
+                        observer.next(projectFn(events, viewInitial));
 
                     projectAndNotify();
 
-                    const subscription = onEvent(projectAndNotify);
+                    const subscription = onEvent(() => {
+                        projectAndNotify();
+                        [_, viewInitial] = flush(events, viewInitial);
+                    });
 
                     return {
                         unsubscribe() {
                             subscription.unsubscribe();
-                            _viewObservers = removeItem(_viewObservers, observer);
+                            viewObservers = removeItem(viewObservers, observer);
                         }
                     };
                 }
@@ -104,6 +109,7 @@ function store(initial) {
         dispatch(event) {
             events.push(event);
             notifyAll(replicas, event);
+            [events, initial] = flush(events, initial);
         },
         commandCreatorFactory,
         eventCreatorFactory(reduce) {
@@ -120,5 +126,5 @@ module.exports = {
     store,
     eventCreatorFactory,
     commandCreatorFactory,
-    defaultProjection: project
+    defaultProjection
 };
