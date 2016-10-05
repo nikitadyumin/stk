@@ -2,7 +2,7 @@
  * Created by ndyumin on 04.10.2016.
  */
 
-function immediateCommitStrategy(project) {
+function immediateFlushStrategy(project) {
     return function (events, initial) {
         const projection = project(events, initial);
         return [[], projection];
@@ -26,5 +26,5 @@ function count100kFlushStrategy(project) {
 module.exports = {
     count100kFlushStrategy,
     neverFlushStrategy,
-    immediateCommitStrategy
+    immediateFlushStrategy
 };
