@@ -71,7 +71,7 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
 
                     const subscription = onEvent(() => {
                         projectAndNotify();
-                        [_, viewInitial] = flush(events, viewInitial);
+                        [, viewInitial] = flush(events, viewInitial);
                     });
 
                     return {
