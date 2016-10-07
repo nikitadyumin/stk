@@ -15,8 +15,10 @@ module.exports = function addStore(_store, initial) {
     }));
 
     _store._eventLog(ev => {
-        if (ev.update._type !== '@@RESET') {
+        if (ev.update && ev.update._type !== '@@RESET') {
             devtool.dispatch(Object.assign(ev, {type: ev.reduce.name}))
         }
     });
+
+    return devtool;
 };
