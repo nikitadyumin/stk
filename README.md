@@ -56,6 +56,26 @@ starts a transaction that later can be either committed to the state or cancelle
 `._eventLog(Observer)`
 subscribes an Observer to the raw event log flowing through the store
 
+### Flush strategies:
+to avoid array overflowing and control computational cost of project stores are created with `flush` strategies.
+A flush strategy specifies a policy for transitioning form an array of events and an initial state to a new initial state (which includes some of the events) and a reduced events array.
+`immediateFlushStrategy` flush every event (warning: transactions will not work)
+`neverFlushStrategy` no flush at all (good for the cases with a low events number - e.g. less than 10 mln)
+`count100kFlushStrategy` flush upon reaching 100 000 events (default for stk)
+
+store(initialState[, flushStrategy]) // flush strategy is specified in a store constructor as an optional 2nd argument
+built-in strategies can be found under stk.flushStrategies path.
+It is possible to specify custom flush strategy under the following API:
+```javascript
+function customImmediateFlushStrategy(projectFunction){
+    return function (eventsArray, initialState) {
+        const newEventsArray = [];
+        const newInitialState = projectFunction(eventsArray, initialState);
+        return [newEventsArray, newInitialState];
+    };
+}
+```
+
 ## Redux DevTools Extension
 STK works with Redux Devtools Extension:
 - Install the [tools](https://github.com/zalmoxisus/redux-devtools-extension)
