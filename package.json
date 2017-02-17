@@ -1,8 +1,8 @@
 {
   "name": "stk",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "state management toolkit",
-  "main": "src/index.js",
+  "main": "dist/stk.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
