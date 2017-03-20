@@ -14,8 +14,8 @@ const t = state.transaction();
 
 t.store().subscribe(log('transaction'));
 
-const stateEvent = state.eventCreatorFactory(add);
-const transactionEvent = t.store().eventCreatorFactory(mult);
+const stateEvent = state.createEvent(add);
+const transactionEvent = t.store().createEvent(mult);
 
 stateEvent(2);
 transactionEvent(3) ;

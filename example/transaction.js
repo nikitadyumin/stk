@@ -19,14 +19,14 @@ const asyncDataRequest = name => name === 'Name'
     ? Promise.resolve(Math.random())
     : Promise.reject('reason for data');
 
-const nameChanged = state.eventCreatorFactory(setName);
-const dataChanged = state.eventCreatorFactory(setData);
+const nameChanged = state.createEvent(setName);
+const dataChanged = state.createEvent(setData);
 
-const requestData = state.commandCreatorFactory(name =>
+const requestData = state.createCommand(name =>
     asyncDataRequest(name)
         .then(dataChanged));
 
-const requestName = state.commandCreatorFactory(id =>
+const requestName = state.createCommand(id =>
     asyncNameRequest(id)
         .then(name => {
             nameChanged(name);

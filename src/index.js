@@ -4,8 +4,8 @@
 
 const {
     store,
-    eventCreatorFactory,
-    commandCreatorFactory,
+    createCommand,
+    createEvent,
     defaultProjection
 } = require('./store');
 const addStore = require('./devtools');
@@ -13,8 +13,8 @@ const flushStrategies = require('./flushStrategies');
 
 module.exports = {
     store,
-    eventCreatorFactory,
-    commandCreatorFactory,
+    createCommand,
+    createEvent,
     defaultProjection,
     devtools: {
         addStore

@@ -6,7 +6,7 @@ const stk = require('../src/');
 const state = stk.store(0);
 const sum = (x, y) => x + y;
 
-const addEvent = state.eventCreatorFactory(sum);
+const addEvent = state.createEvent(sum);
 
 const log = i => v => console.log(i, v);
 const defaultView = state.view(stk.defaultProjection);

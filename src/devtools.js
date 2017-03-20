@@ -4,7 +4,7 @@
 
 
 module.exports = function addStore(_store, initial) {
-    const resetEvent = _store.eventCreatorFactory((s, u) => u.state);
+    const resetEvent = _store.createEvent((s, u) => u.state);
     const devtool = window.devToolsExtension(function(s, u) {
         return u.type === '@@INIT' ? initial : u.reduce(s, u.update);
     });

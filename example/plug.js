@@ -11,7 +11,7 @@ const log = v => console.log(v);
 
 state.subscribe(log);
 state.plug(Rx.Observable.from([1,2,3,4]), add);
-const event = state.eventCreatorFactory(add);
+const event = state.createEvent(add);
 event(20);
 event(30);
 event(40);

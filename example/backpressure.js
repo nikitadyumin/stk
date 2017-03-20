@@ -6,7 +6,7 @@
 const stk = require('../src/');
 const sum = (x, y) => x + y;
 const store = stk.store(0);
-const numberEvent = store.eventCreatorFactory(sum);
+const numberEvent = store.createEvent(sum);
 const log = v => console.log(v);
 
 function dispatch(event, count) {

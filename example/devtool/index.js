@@ -5,7 +5,7 @@ const sum = (s, u) => Object.assign({}, s, {a: s.a + u});
 const initial = {a: 0, c: {b:  'abc'}};
 const _store = store(initial);
 
-const numberEvent = _store.eventCreatorFactory(sum);
+const numberEvent = _store.createEvent(sum);
 
 devtools.addStore(_store, initial);
 

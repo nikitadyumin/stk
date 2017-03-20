@@ -13,12 +13,12 @@ function defaultProjection(events, initial) {
     }, initial);
 }
 
-const eventCreatorFactory = reduce => update => ({
+const createEvent = reduce => update => ({
     reduce,
     update
 });
 
-const commandCreatorFactory = executor => executor;
+const createCommand = executor => executor;
 
 function store(initial, flushStrategy = count100kFlushStrategy) {
     let events = [];
@@ -49,7 +49,7 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
             return this.view(defaultProjection).subscribe(observer);
         },
         plug(observable, reducer) {
-            const event = this.eventCreatorFactory(reducer);
+            const event = this.createEvent(reducer);
             return observable.subscribe({
                 next: event
             });
@@ -97,7 +97,7 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
                     bSubs.unsubscribe();
                     events = events.slice(0, _branchRev).concat(_altEvents);
                     _altEvents.length = 0;
-                    notifyAll(replicas, eventCreatorFactory(s=>s)())
+                    notifyAll(replicas, createEvent(s => s)())
                 },
                 cancel: () => {
                     subs.unsubscribe();
@@ -111,8 +111,17 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
             notifyAll(replicas, event);
             [events, initial] = flush(events, initial);
         },
-        commandCreatorFactory,
-        eventCreatorFactory(reduce) {
+        createCommand(fn) {
+            return (...args) => {
+                return new Promise(res => {
+                    const subscription = this.subscribe(state => {
+                        res(fn(state, ...args));
+                        subscription.unsubscribe();
+                    });
+                });
+            };
+        },
+        createEvent(reduce) {
             return update =>
                 this.dispatch({
                     reduce,
@@ -124,7 +133,7 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
 
 module.exports = {
     store,
-    eventCreatorFactory,
-    commandCreatorFactory,
+    createEvent,
+    createCommand,
     defaultProjection
 };
