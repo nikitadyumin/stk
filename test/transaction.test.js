@@ -99,7 +99,7 @@ test('test 2 transactions', () => {
     expect(clb1.mock.calls.length).toBe(4);
     expect(clb1.mock.calls).toEqual([ [ 0 ], [ 2 ], [ 6 ], [ 8 ] ]);
 
-    expect(clb2.mock.calls.length).toBe(4);
-    expect(clb2.mock.calls).toEqual([ [ 0 ], [ 2 ], [ 4 ], [ 16 ], [ 18 ], [ 54 ], [ 56 ] ]);
+    expect(clb2.mock.calls.length).toBe(5);
+    expect(clb2.mock.calls).toEqual([ [ 0 ], [ 2 ], [ 4 ], [ 16 ], [ 16 ] ]);
 
 });

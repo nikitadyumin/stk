@@ -29,17 +29,17 @@ store.dispatch({
 store.subscribe(state => console.log(state)); // 10, 30
 ```
 
-`.eventCreatorFactory(fnReducer)`
+`.createEvent(fnReducer)`
 given a reducer returns an event creator that produces events (events can't have side effects)
 ```javascript
 const sum = (x, y) => x + y;
 const store = stk.store(10);
-const numberEvent = store.eventCreatorFactory(sum);
+const numberEvent = store.createEvent(sum);
 numberEvent(20)
 store.subscribe(state => console.log(state)); // 10, 30
 ```
 
-`.commandCreatorFactory(fnExecutor)`
+`.createCommand(fnExecutor)`
 given an executor function returns a command creator that produces commands (that perform side effects)
 
 `.plug(Observable, reducer)`
