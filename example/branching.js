@@ -4,8 +4,8 @@
 const stk = require('../src/');
 const log = l => v => console.log(l, v);
 
-const add = (x,y) => x+ y;
-const mult = (x,y) => x* y;
+const add = (x, y) => x + y;
+const mult = (x, y) => x * y;
 
 const state = stk.store(0);
 
@@ -18,8 +18,8 @@ const stateEvent = state.createEvent(add);
 const transactionEvent = t.store().createEvent(mult);
 
 stateEvent(2);
-transactionEvent(3) ;
+transactionEvent(3);
 stateEvent(2);
-transactionEvent(3) ;
+transactionEvent(3);
 t.commit();
 stateEvent(1);

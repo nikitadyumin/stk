@@ -8,7 +8,9 @@ const {
     createEvent,
     defaultProjection
 } = require('./store');
+
 const addStore = require('./devtools');
+
 const flushStrategies = require('./flushStrategies');
 
 module.exports = {
