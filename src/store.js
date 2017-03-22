@@ -20,6 +20,9 @@ const createEvent = reduce => update => ({
 
 const createCommand = executor => executor;
 
+const markAsBranchEvent = ev => Object.assign({}, ev, {$$branch: true});
+const isBranchEvent = e => e.$$branch;
+
 function store(initial, flushStrategy = count100kFlushStrategy) {
     let events = [];
     let replicas = [];
@@ -83,24 +86,28 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
                 }
             }
         },
-        transaction() {
-            const _branchRev = events.length;
+        branch() {
             const _altEvents = [];
             const branch = store(initial);
-            const subs = this._eventLog(branch.dispatch);
+            events.forEach(branch.dispatch);
+
             const bSubs = branch._eventLog(ev => _altEvents.push(ev));
+
+            const rebase = () => {
+                const alt = _altEvents.map(markAsBranchEvent);
+                _altEvents.length = 0;
+                events.concat(alt).forEach(branch.dispatch);
+            };
+
             return {
                 store: () => branch,
-                dispatch: branch.dispatch,
-                commit: () => {
-                    subs.unsubscribe();
+                rebase,
+                merge: () => {
                     bSubs.unsubscribe();
-                    events = events.slice(0, _branchRev).concat(_altEvents);
+                    _altEvents.filter(isBranchEvent).forEach(this.dispatch);
                     _altEvents.length = 0;
-                    notifyAll(replicas, createEvent(s => s)())
                 },
-                cancel: () => {
-                    subs.unsubscribe();
+                close: () => {
                     bSubs.unsubscribe();
                     _altEvents.length = 0;
                 }
