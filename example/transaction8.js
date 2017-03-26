@@ -31,7 +31,7 @@ const reset = (env, value) => value;
 const fromServer = counter$.createEvent((reset));
 fromServer(env);
 
-const t = counter$.branch();
+const t = counter$.branch(true);
 
 const update = (env, value) => Object.assign({}, env, {field: value});
 const changeField = t.store()
@@ -46,7 +46,7 @@ changeField(56234);
 // fromServer(env2);
 fromServer(env2);
 
-t.rebase();
+// t.rebase();
 t.merge();
-t.close();
+t.delete();
 

@@ -21,7 +21,13 @@ const createEvent = reduce => update => ({
 const createCommand = executor => executor;
 
 const markAsBranchEvent = ev => Object.assign({}, ev, {$$branch: true});
+const markAsMasterEvent = ev => Object.assign({}, ev, {$$master: true});
 const isBranchEvent = e => e.$$branch;
+const isMasterEvent = e => e.$$master;
+const not = fn => (...args) => !fn(...args);
+
+const toString = o => JSON.stringify(o);
+const compose = (f, d) => (...args) => f(d(...args)) ;
 
 function store(initial, flushStrategy = count100kFlushStrategy) {
     let events = [];
@@ -86,7 +92,10 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
                 }
             }
         },
-        branch() {
+        _reset() {
+            events.length = 0;
+        },
+        branch(autoRebase = false) {
             const _altEvents = [];
             const branch = store(initial);
             events.forEach(branch.dispatch);
@@ -94,20 +103,25 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
             const bSubs = branch._eventLog(ev => _altEvents.push(ev));
 
             const rebase = () => {
-                const alt = _altEvents.map(markAsBranchEvent);
+                const alt = _altEvents.slice(0);
                 _altEvents.length = 0;
-                events.concat(alt).forEach(branch.dispatch);
+                branch._reset();
+                events.map(markAsMasterEvent).concat(alt).forEach(branch.dispatch);
             };
+
+            if (autoRebase) {
+                this._eventLog(rebase);
+            }
 
             return {
                 store: () => branch,
                 rebase,
                 merge: () => {
                     bSubs.unsubscribe();
-                    _altEvents.filter(isBranchEvent).forEach(this.dispatch);
+                    _altEvents.filter(not(isMasterEvent)).forEach(this.dispatch);
                     _altEvents.length = 0;
                 },
-                close: () => {
+                delete: () => {
                     bSubs.unsubscribe();
                     _altEvents.length = 0;
                 }
