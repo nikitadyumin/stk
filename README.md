@@ -50,9 +50,6 @@ given an executor function returns a command creator that produces commands (tha
 `.view(project)`
 given a project function (project(Events[], initialState)) produces a view that is a way to observe events flowing in the store
 
-`.transaction()`
-starts a transaction that later can be either committed to the state or cancelled
-
 `._eventLog(Observer)`
 subscribes an Observer to the raw event log flowing through the store
 
