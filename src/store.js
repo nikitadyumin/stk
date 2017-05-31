@@ -27,7 +27,7 @@ const isMasterEvent = e => e.$$master;
 const not = fn => (...args) => !fn(...args);
 
 const toString = o => JSON.stringify(o);
-const compose = (f, d) => (...args) => f(d(...args)) ;
+const compose = (f, d) => (...args) => f(d(...args));
 
 function store(initial, flushStrategy = count100kFlushStrategy) {
     let events = [];
@@ -143,11 +143,14 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
             };
         },
         createEvent(reduce) {
-            return update =>
-                this.dispatch({
-                    reduce,
-                    update
-                });
+            const dispatch = update =>  this.dispatch({reduce,update});
+            dispatch.batched = createEvent(reduce);
+            return dispatch;
+        },
+        batch(...evs) {
+            events.push(...evs);
+            notifyAll(replicas, null);
+            [events, initial] = flush(events, initial);
         }
     };
 }

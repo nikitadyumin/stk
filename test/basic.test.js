@@ -70,3 +70,19 @@ test('create command (async)', () => {
 
     sumCommand(4).then(compose(check, clb));
 });
+
+test('batch', () => {
+    const testStore = store(1);
+    const add = testStore.createEvent(sum);
+    const mult = testStore.createEvent((x,y) => x * y);
+    const clb = jest.fn();
+    testStore.subscribe(clb);
+
+    testStore.batch(
+        add.batched(2),
+        mult.batched(2),
+        add.batched(4)
+    );
+    expect(clb.mock.calls.length).toBe(2);
+    expect(clb.mock.calls[1]).toEqual([10]);
+});
