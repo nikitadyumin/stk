@@ -157,8 +157,8 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
                 return new Promise(res => {
                     const subscription = this.subscribe(state => {
                         res(fn(state, ...args));
-                        subscription.unsubscribe();
                     });
+                    subscription.unsubscribe();
                 });
             };
         },
