@@ -67,26 +67,46 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
             let viewObservers = [];
             const onEvent = this._eventLog;
             const flush = flushStrategy(projectFn);
+
+            const projectAndNotify = () =>  {
+                viewObservers.forEach(observer => {
+                    observer.next(projectFn(events, viewInitial));
+                });
+            };
+
+            let subscription = null;
+
+            const subscribe = () => {
+                subscription = onEvent(() => {
+                    projectAndNotify();
+                    [, viewInitial] = flush(events, viewInitial);
+                });
+            };
+
+            const unsubscribe = () => {
+                subscription.unsubscribe();
+                subscription = null;
+            };
+
             return {
                 subscribe (observer) {
                     if (typeof observer === 'function') {
                         observer = fromCallbacks(...arguments);
                     }
                     viewObservers.push(observer);
-                    const projectAndNotify = () =>
-                        observer.next(projectFn(events, viewInitial));
 
-                    projectAndNotify();
+                    if (viewObservers.length === 1) {
+                        subscribe();
+                    }
 
-                    const subscription = onEvent(() => {
-                        projectAndNotify();
-                        [, viewInitial] = flush(events, viewInitial);
-                    });
+                    observer.next(projectFn(events, viewInitial));
 
                     return {
                         unsubscribe() {
-                            subscription.unsubscribe();
                             viewObservers = removeItem(viewObservers, observer);
+                            if (viewObservers.length === 0) {
+                                unsubscribe();
+                            }
                         }
                     };
                 }
