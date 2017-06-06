@@ -3,6 +3,8 @@
  */
 import {store} from '../src/index';
 const sum = (x,y) => x + y;
+const reset = (_,x) => x;
+
 describe('regression testing', () => {
     it('unsubscribes from views correctly', () => {
         const s = store(0);
@@ -33,7 +35,7 @@ describe('regression testing', () => {
         expect(acc1).toBe(10);
         expect(acc2).toBe(10);
     });
-    it('unsubscribes correctly', () => {
+    it('unsubscribes correctly', done => {
         const s = store(0);
 
         let acc1 = 0;
@@ -55,9 +57,9 @@ describe('regression testing', () => {
         expect(acc1).toBe(10);
         expect(acc2).toBe(10);
         const run = s.createCommand((state, update) => {
-            console.log(state, update);
             expect(state).toBe(10);
             expect(update).toBe(123);
+            done();
         });
         run(123);
     });
@@ -74,4 +76,21 @@ describe('regression testing', () => {
         });
         s2.unsubscribe();
     });
+
+    it('does not loop in command executor', done => {
+        const s = store(1);
+
+        const event = s.createEvent(reset);
+        const cmd = s.createCommand((state, update) => {
+            expect(state).toBe(1);
+            event(10);
+            return 10 + update;
+        });
+
+        cmd(123).then(result => {
+            expect(result).toBe(133);
+            done();
+        });
+    })
+
 });

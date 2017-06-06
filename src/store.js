@@ -68,7 +68,7 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
             const onEvent = this._eventLog;
             const flush = flushStrategy(projectFn);
 
-            const projectAndNotify = () =>  {
+            const projectAndNotify = () => {
                 viewObservers.forEach(observer => {
                     observer.next(projectFn(events, viewInitial));
                 });
@@ -89,6 +89,12 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
             };
 
             return {
+                once(observer) {
+                    if (typeof observer === 'function') {
+                        observer = fromCallbacks(...arguments);
+                    }
+                    return observer.next(projectFn(events, viewInitial));
+                },
                 subscribe (observer) {
                     if (typeof observer === 'function') {
                         observer = fromCallbacks(...arguments);
@@ -155,15 +161,14 @@ function store(initial, flushStrategy = count100kFlushStrategy) {
         createCommand(fn) {
             return (...args) => {
                 return new Promise(res => {
-                    const subscription = this.subscribe(state => {
+                    this.view(defaultProjection).once(state => {
                         res(fn(state, ...args));
                     });
-                    subscription.unsubscribe();
                 });
             };
         },
         createEvent(reduce) {
-            const dispatch = update =>  this.dispatch({reduce,update});
+            const dispatch = update => this.dispatch({reduce, update});
             dispatch.batched = createEvent(reduce);
             return dispatch;
         },
